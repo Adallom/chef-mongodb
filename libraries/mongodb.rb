@@ -38,6 +38,7 @@ class Chef::ResourceDefinitionList::MongoDB
     end
 
     begin
+
 	  connection = nil
 	  rescue_connection_failure do
 	    connection = Mongo::Connection.new('localhost', node['mongodb']['port'], :op_timeout => 5, :slave_ok => true)
@@ -112,12 +113,14 @@ class Chef::ResourceDefinitionList::MongoDB
         end
         config['members'].collect!{ |m| {"_id" => m["_id"], "host" => mapping[m["host"]]} }
         config['version'] += 1
+        
+        
      
 
-		rs_connection = nil
-		rescue_connection_failure do
-			rs_connection = Mongo::ReplSetConnection.new( old_members) 
-			rs_connection.database_names #check connection
+        rs_connection = nil
+        rescue_connection_failure do
+          rs_connection = Mongo::ReplSetConnection.new( old_members) 
+          rs_connection.database_names #check connection
         end
          
         admin = rs_connection['admin']
@@ -130,6 +133,7 @@ class Chef::ResourceDefinitionList::MongoDB
           # reconfiguring destroys exisiting connections, reconnect
           Mongo::Connection.new('localhost', node['mongodb']['port'], :op_timeout => 5, :slave_ok => true)
           config = connection['local']['system']['replset'].find_one({"_id" => name})
+      
 		  		  # Validate configuration change 
 		  if config['members'] == rs_members
 			Chef::Log.info("New config successfully applied: #{config.inspect}")
@@ -156,10 +160,13 @@ class Chef::ResourceDefinitionList::MongoDB
         end
     
 
-		rs_connection = nil
-		rescue_connection_failure do
-			rs_connection = Mongo::ReplSetConnection.new( old_members) 
-			rs_connection.database_names #check connection
+
+        
+      
+        rs_connection = nil
+        rescue_connection_failure do
+          rs_connection = Mongo::ReplSetConnection.new( old_members) 
+          rs_connection.database_names #check connection
         end
         
         admin = rs_connection['admin']
@@ -200,6 +207,7 @@ class Chef::ResourceDefinitionList::MongoDB
 
     shard_nodes.each do |n|
       if n['recipes'].include?('mongodb::replicaset')
+      
     
 
         key = "#{n['mongodb']['replicaset_prefix']}#{n['mongodb']['shard_name']}"
@@ -305,17 +313,19 @@ class Chef::ResourceDefinitionList::MongoDB
 
   end
   
+  
+
   # Ensure retry upon failure
   def self.rescue_connection_failure(max_retries=30)
-	retries = 0
-	begin
-	  yield
-	rescue Mongo::ConnectionFailure => ex
-	  retries += 1
-	  raise ex if retries > max_retries
-	  sleep(0.5)
-	  retry
-	end
+    retries = 0
+    begin
+      yield
+    rescue Mongo::ConnectionFailure => ex
+      retries += 1
+      raise ex if retries > max_retries
+      sleep(0.5)
+      retry
+    end
   end
 
 end
