@@ -38,7 +38,11 @@ class Chef::ResourceDefinitionList::MongoDB
     end
 
     begin
-      connection = Mongo::Connection.new('localhost', node['mongodb']['port'], :op_timeout => 5, :slave_ok => true)
+	  connection = nil
+	  rescue_connection_failure do
+	    connection = Mongo::Connection.new('localhost', node['mongodb']['port'], :op_timeout => 5, :slave_ok => true)
+	    connection.database_names # check connection
+	  end
     rescue
       Chef::Log.warn("Could not connect to database: 'localhost:#{node['mongodb']['port']}'")
       return
@@ -110,8 +114,12 @@ class Chef::ResourceDefinitionList::MongoDB
         config['version'] += 1
      
 
-    
-        rs_connection = Mongo::ReplSetConnection.new(old_members)
+		rs_connection = nil
+		rescue_connection_failure do
+			rs_connection = Mongo::ReplSetConnection.new( old_members) 
+			rs_connection.database_names #check connection
+        end
+         
         admin = rs_connection['admin']
         cmd = BSON::OrderedHash.new
         cmd['replSetReconfig'] = config
@@ -148,8 +156,12 @@ class Chef::ResourceDefinitionList::MongoDB
         end
     
 
-
-        rs_connection = Mongo::ReplSetConnection.new(old_members)
+		rs_connection = nil
+		rescue_connection_failure do
+			rs_connection = Mongo::ReplSetConnection.new( old_members) 
+			rs_connection.database_names #check connection
+        end
+        
         admin = rs_connection['admin']
 
         cmd = BSON::OrderedHash.new
@@ -291,6 +303,19 @@ class Chef::ResourceDefinitionList::MongoDB
       end
     end
 
+  end
+  
+  # Ensure retry upon failure
+  def self.rescue_connection_failure(max_retries=30)
+	retries = 0
+	begin
+	  yield
+	rescue Mongo::ConnectionFailure => ex
+	  retries += 1
+	  raise ex if retries > max_retries
+	  sleep(0.5)
+	  retry
+	end
   end
 
 end
