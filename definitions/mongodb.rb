@@ -162,12 +162,12 @@ define :mongodb_instance, :mongodb_type => "mongod" , :action => [:enable, :star
   end
 
   # init script
-  template "#{node['mongodb']['init_dir']}/#{name}" do
+  template "#{node['mongodb']['init_dir']}/#{name}.conf" do
     action :create
     source node[:mongodb][:init_script_template]
     group node['mongodb']['root_group']
     owner "root"
-    mode "0755"
+    mode "0644"
     variables :provides => name
     if node[:mongodb][:should_restart_server]
       notifies :restart, "service[#{name}]"
@@ -176,6 +176,7 @@ define :mongodb_instance, :mongodb_type => "mongod" , :action => [:enable, :star
 
   # service
   service name do
+    provider Chef::Provider::Service::Upstart
     supports :status => true, :restart => true
     action service_action
     service_notifies.each do |service_notify|
