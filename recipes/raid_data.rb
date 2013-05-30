@@ -1,10 +1,8 @@
 include_recipe "aws"
 
-gem_package "aws-sdk" do
-  version "1.3.5"
-  action :nothing
-end.run_action(:install)
-Gem.clear_paths
+chef_gem "aws-sdk" do 
+	version "1.3.5"
+end
 
 if node[:mongodb][:use_piops]
   create_raided_drives_from_snapshot do
