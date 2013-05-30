@@ -79,7 +79,15 @@ class Chef::ResourceDefinitionList::MongoDB
     end
     if result.fetch("ok", nil) == 1
       # everything is fine, do nothing
-    elsif result.fetch("errmsg", nil) == "already initialized"
+   
+    elsif result.fetch("errmsg", nil) =~ %r/(\S+) is already initiated/ || (result.fetch("errmsg", nil) == "already initialized")
+      server,port = $1.nil? ? ['localhost',node['mongodb']['port']] : $1.split(":")
+      begin
+        connection = Mongo::Connection.new(server, port, :op_timeout => 5, :slave_ok => true)
+      rescue
+        abort("Could not connect to database: '#{server}:#{port}'")
+      end
+
       # check if both configs are the same
       config = connection['local']['system']['replset'].find_one({"_id" => name})
       if config['_id'] == name and config['members'] == rs_members
@@ -100,6 +108,7 @@ class Chef::ResourceDefinitionList::MongoDB
         end
         config['members'].collect!{ |m| {"_id" => m["_id"], "host" => mapping[m["host"]]} }
         config['version'] += 1
+     
 
     
         rs_connection = Mongo::ReplSetConnection.new(old_members)
@@ -131,6 +140,7 @@ class Chef::ResourceDefinitionList::MongoDB
           max_id += 1
           config['members'] << {"_id" => max_id, "host" => m}
         end
+    
 
 
         rs_connection = Mongo::ReplSetConnection.new(old_members)
@@ -166,6 +176,7 @@ class Chef::ResourceDefinitionList::MongoDB
 
     shard_nodes.each do |n|
       if n['recipes'].include?('mongodb::replicaset')
+    
 
         key = "#{n['mongodb']['replicaset_prefix']}#{n['mongodb']['shard_name']}"
       else
