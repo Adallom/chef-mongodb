@@ -101,7 +101,8 @@ class Chef::ResourceDefinitionList::MongoDB
         config['members'].collect!{ |m| {"_id" => m["_id"], "host" => mapping[m["host"]]} }
         config['version'] += 1
 
-        rs_connection = Mongo::ReplSetConnection.new( *old_members.collect{ |m| m.split(":") })
+    
+        rs_connection = Mongo::ReplSetConnection.new(old_members)
         admin = rs_connection['admin']
         cmd = BSON::OrderedHash.new
         cmd['replSetReconfig'] = config
@@ -123,7 +124,7 @@ class Chef::ResourceDefinitionList::MongoDB
         rs_members.collect!{ |member| member['host'] }
         config['version'] += 1
         old_members = config['members'].collect{ |member| member['host'] }
-        members_delete = old_members - rs_members
+        members_delete = old_members - rs_members        
         config['members'] = config['members'].delete_if{ |m| members_delete.include?(m['host']) }
         members_add = rs_members - old_members
         members_add.each do |m|
@@ -131,7 +132,8 @@ class Chef::ResourceDefinitionList::MongoDB
           config['members'] << {"_id" => max_id, "host" => m}
         end
 
-        rs_connection = Mongo::ReplSetConnection.new( *old_members.collect{ |m| m.split(":") })
+
+        rs_connection = Mongo::ReplSetConnection.new(old_members)
         admin = rs_connection['admin']
 
         cmd = BSON::OrderedHash.new
@@ -164,6 +166,7 @@ class Chef::ResourceDefinitionList::MongoDB
 
     shard_nodes.each do |n|
       if n['recipes'].include?('mongodb::replicaset')
+
         key = "#{n['mongodb']['replicaset_prefix']}#{n['mongodb']['shard_name']}"
       else
         key = '_single'
