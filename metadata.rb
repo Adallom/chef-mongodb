@@ -14,6 +14,8 @@ recipe "mongodb::replicaset", "Installs and configures a mongodb replicaset"
 
 depends "apt", "~> 1.4.4"
 depends "yum"
+depends "aws"
+depends "cpan"
 
 %w{ ubuntu debian freebsd centos redhat fedora amazon scientific}.each do |os|
   supports os
