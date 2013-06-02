@@ -4,14 +4,5 @@
   # should return a 0 status code if mongodb is running
   /etc/init.d/mongodb status
 }
-	
-	abcde
-	abcde
-		abcde
-		abcde
-		abcde
-	abcde
-	abcde
-		abcde
-				abcde
+
 	
