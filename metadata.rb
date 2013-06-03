@@ -12,7 +12,7 @@ recipe "mongodb::configserver", "Installs and configures a configserver for mong
 recipe "mongodb::shard", "Installs and configures a single shard"
 recipe "mongodb::replicaset", "Installs and configures a mongodb replicaset"
 
-depends "apt", "~> 1.4.4"
+depends "apt" #, "~> 1.4.4"
 depends "yum"
 depends "aws"
 depends "cpan"
