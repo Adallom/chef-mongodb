@@ -21,7 +21,7 @@
 
 define :mongodb_instance, :mongodb_type => "mongod" , :action => [:enable, :start],
     :bind_ip => nil, :port => 27017 , :logpath => "/var/log/mongodb",
-    :dbpath => "/data", :configfile => nil, :configserver => [],
+    :dbpath => "/data", :configfile => "/etc/mongodb.conf", :configserver => [],
     :replicaset => nil, :enable_rest => false, :notifies => [] do
     
   include_recipe "mongodb::default"
