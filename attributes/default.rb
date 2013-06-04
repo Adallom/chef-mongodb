@@ -104,3 +104,4 @@ default[:mongodb][:backup_host] = nil
 
 default[:mongodb][:package_version] = nil
 default[:mongodb][:nojournal] = false
+default[:mongodb][:template_cookbook] = "mongodb"
