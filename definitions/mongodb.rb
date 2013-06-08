@@ -22,7 +22,7 @@
 define :mongodb_instance, :mongodb_type => "mongod" , :action => [:enable, :start],
     :bind_ip => nil, :port => 27017 , :logpath => "/var/log/mongodb",
     :dbpath => "/data", :configfile => "/etc/mongodb.conf", :configserver => [],
-    :replicaset => nil, :enable_rest => false, :notifies => [] do
+    :replicaset => nil, :enable_rest => false, :smallfiles => false, :notifies => [] do
     
   include_recipe "mongodb::default"
   
@@ -95,7 +95,8 @@ define :mongodb_instance, :mongodb_type => "mongod" , :action => [:enable, :star
                 "dbpath" => dbpath,
                 "logpath" => logfile,
                 "replicaset_name" => replicaset_name,
-                "enable_rest" => params[:enable_rest])
+                "enable_rest" => params[:enable_rest],
+				"smallfiles" => params[:smallfiles])
       if node[:mongodb][:should_restart_server]
         notifies :restart, "service[#{name}]"
       end
@@ -134,7 +135,8 @@ define :mongodb_instance, :mongodb_type => "mongod" , :action => [:enable, :star
       "configsrv" => false, #type == "configserver", this might change the port
       "shardsrv" => false,  #type == "shard", dito.
       "nojournal" => nojournal,
-      "enable_rest" => params[:enable_rest]
+      "enable_rest" => params[:enable_rest],
+	   "smallfiles" => params[:smallfiles]
     )
     if node[:mongodb][:should_restart_server]
       notifies :restart, "service[#{name}]"

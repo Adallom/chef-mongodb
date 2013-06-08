@@ -1,6 +1,9 @@
 # mongodb.conf
 <%= @replicaset_name ? "replSet=#{@replicaset_name}" : "" %>
 
+# should we use smallfiles
+smallfiles=<%= @smallfiles %>
+
 # should we use rest
 rest=<%= @enable_rest %>
 

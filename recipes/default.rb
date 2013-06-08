@@ -50,5 +50,6 @@ if node.recipe?("mongodb::default") or node.recipe?("mongodb")
     logpath      node['mongodb']['logpath']
     dbpath       node['mongodb']['dbpath']
     enable_rest  node['mongodb']['enable_rest']
+	smallfiles   node['mongodb']['smallfiles']
   end
 end
